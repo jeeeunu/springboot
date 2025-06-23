@@ -35,11 +35,6 @@ public class PostService {
                 .map(PostDto::fromEntity);
     }
 
-    public Page<PostDto> search(String query, Pageable pageable) {
-        return postRepository.findByTitleContainingOrContentContainingOrderByCreatedAtDesc(query, query, pageable)
-                .map(PostDto::fromEntity);
-    }
-
     public PostDto findById(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다: " + id));

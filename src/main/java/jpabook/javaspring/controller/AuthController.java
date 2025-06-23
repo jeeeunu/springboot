@@ -1,6 +1,7 @@
 package jpabook.javaspring.controller;
 
 import jakarta.validation.Valid;
+import jpabook.javaspring.dto.common.ApiResponse;
 import jpabook.javaspring.dto.user.UserDto;
 import jpabook.javaspring.dto.user.UserLoginDto;
 import jpabook.javaspring.dto.user.UserRegistrationDto;
@@ -26,20 +27,20 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
 
     @PostMapping("/register")
-    public ResponseEntity<UserDto> register(@Valid @RequestBody UserRegistrationDto registrationDto) {
+    public ResponseEntity<ApiResponse<UserDto>> register(@Valid @RequestBody UserRegistrationDto registrationDto) {
         UserDto userDto = userService.register(registrationDto);
-        return new ResponseEntity<>(userDto, HttpStatus.CREATED);
+        return new ResponseEntity<>(ApiResponse.success("회원가입이 완료되었습니다.", userDto), HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserDto> login(@Valid @RequestBody UserLoginDto loginDto) {
+    public ResponseEntity<ApiResponse<UserDto>> login(@Valid @RequestBody UserLoginDto loginDto) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword())
         );
-        
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        
+
         UserDto userDto = userService.findByUsername(loginDto.getUsername());
-        return ResponseEntity.ok(userDto);
+        return ResponseEntity.ok(ApiResponse.success("로그인이 완료되었습니다.", userDto));
     }
 }

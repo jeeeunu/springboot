@@ -30,7 +30,7 @@ public class PostService {
 
     public Page<PostDto> findByAuthor(String username, Pageable pageable) {
         User author = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
         return postRepository.findByAuthorOrderByCreatedAtDesc(author, pageable)
                 .map(PostDto::fromEntity);
     }
@@ -42,15 +42,15 @@ public class PostService {
 
     public PostDto findById(Long id) {
         Post post = postRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Post not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다: " + id));
         return PostDto.fromEntity(post);
     }
 
     @Transactional
     public PostDto create(PostCreateDto createDto, String username) {
         User author = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
-        
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
+
         Post post = createDto.toEntity(author);
         Post savedPost = postRepository.save(post);
         return PostDto.fromEntity(savedPost);
@@ -59,12 +59,12 @@ public class PostService {
     @Transactional
     public PostDto update(Long id, PostUpdateDto updateDto, String username) {
         Post post = postRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Post not found with id: " + id));
-        
+                .orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다: " + id));
+
         if (!post.getAuthor().getUsername().equals(username)) {
-            throw new AccessDeniedException("You are not authorized to update this post");
+            throw new AccessDeniedException("이 게시물을 수정할 권한이 없습니다");
         }
-        
+
         post.update(updateDto.getTitle(), updateDto.getContent());
         return PostDto.fromEntity(post);
     }
@@ -72,12 +72,12 @@ public class PostService {
     @Transactional
     public void delete(Long id, String username) {
         Post post = postRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Post not found with id: " + id));
-        
+                .orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다: " + id));
+
         if (!post.getAuthor().getUsername().equals(username)) {
-            throw new AccessDeniedException("You are not authorized to delete this post");
+            throw new AccessDeniedException("이 게시물을 삭제할 권한이 없습니다");
         }
-        
+
         postRepository.delete(post);
     }
 }

@@ -31,5 +31,9 @@ public class OpenApiConfig {
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("bearer")
                                         .bearerFormat("JWT")));
+//                .addSecurityItem(
+//                        new io.swagger.v3.oas.models.security.SecurityRequirement()
+//                                .addList("bearer-key")
+//                );
     }
 }

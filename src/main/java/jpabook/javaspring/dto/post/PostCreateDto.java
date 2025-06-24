@@ -14,13 +14,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class PostCreateDto {
-    
-    @NotBlank(message = "Title is required")
-    @Size(min = 3, max = 100, message = "Title must be between 3 and 100 characters")
+
+    @NotBlank()
+    @Size(min = 3, max = 100, message = "제목은 3자 이상 100자 이하여야 합니다")
     private String title;
-    
-    @NotBlank(message = "Content is required")
-    @Size(min = 10, message = "Content must be at least 10 characters")
+
+    @NotBlank()
+    @Size(min = 10, message = "내용은 최소 10자 이상이어야 합니다")
     private String content;
     
     public Post toEntity(User author) {

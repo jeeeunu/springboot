@@ -17,21 +17,20 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @AllArgsConstructor
 @Builder
 public class UserRegistrationDto {
-    
-    @NotBlank(message = "Username is required")
-    @Size(min = 4, max = 20, message = "Username must be between 4 and 20 characters")
-    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Username can only contain letters, numbers, and underscores")
+
+    @NotBlank(message = "사용자명을 입력해주세요")
+    @Size(min = 4, max = 20, message = "사용자명은 4자에서 20자 사이여야 합니다")
+    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "사용자명은 영문자, 숫자, 밑줄만 포함할 수 있습니다")
     private String username;
-    
-    @NotBlank(message = "Password is required")
-    @Size(min = 8, message = "Password must be at least 8 characters")
+
+    @NotBlank(message = "비밀번호를 입력해주세요")
     private String password;
-    
-    @NotBlank(message = "Name is required")
+
+    @NotBlank(message = "이름을 입력해주세요")
     private String name;
-    
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email should be valid")
+
+    @NotBlank(message = "이메일을 입력해주세요")
+    @Email(message = "올바른 이메일 형식을 입력해주세요")
     private String email;
     
     public User toEntity(PasswordEncoder passwordEncoder) {

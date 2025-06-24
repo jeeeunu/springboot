@@ -4,10 +4,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jpabook.javaspring.dto.auth.TokenResponse;
 import jpabook.javaspring.dto.common.ApiResponse;
 import jpabook.javaspring.dto.user.UserDto;
 import jpabook.javaspring.dto.user.UserLoginDto;
 import jpabook.javaspring.dto.user.UserRegistrationDto;
+import jpabook.javaspring.security.JwtTokenProvider;
 import jpabook.javaspring.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,6 +31,7 @@ public class AuthController {
 
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/register")
     @Operation(
@@ -44,14 +47,22 @@ public class AuthController {
             summary = "로그인",
             security = { @SecurityRequirement(name = "bearer-key") }
     )
-    public ResponseEntity<ApiResponse<UserDto>> login(@Valid @RequestBody UserLoginDto loginDto) {
+    public ResponseEntity<ApiResponse<TokenResponse>> login(@Valid @RequestBody UserLoginDto loginDto) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword())
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
+        // Generate JWT token
+        String jwt = jwtTokenProvider.generateToken(authentication);
+
+        // Get user information
         UserDto userDto = userService.findByUsername(loginDto.getUsername());
-        return ResponseEntity.ok(ApiResponse.success("로그인이 완료되었습니다.", userDto));
+
+        // Create token response
+        TokenResponse tokenResponse = TokenResponse.of(jwt, userDto);
+
+        return ResponseEntity.ok(ApiResponse.success("로그인이 완료되었습니다.", tokenResponse));
     }
 }

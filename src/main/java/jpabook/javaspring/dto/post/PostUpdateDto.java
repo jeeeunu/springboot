@@ -12,12 +12,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class PostUpdateDto {
-    
-    @NotBlank(message = "Title is required")
-    @Size(min = 3, max = 100, message = "Title must be between 3 and 100 characters")
+
+    @NotBlank(message = "제목은 필수 입력 항목입니다")
+    @Size(min = 3, max = 100, message = "제목은 최소 3자, 최대 100자까지 입력해 주세요.")
     private String title;
-    
-    @NotBlank(message = "Content is required")
-    @Size(min = 10, message = "Content must be at least 10 characters")
+
+    @NotBlank(message = "내용은 필수 입력 항목입니다")
+    @Size(min = 10, message = "내용은 최소 10자 이상 입력해 주세요.")
     private String content;
 }

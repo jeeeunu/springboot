@@ -23,12 +23,19 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error("서버에러가 발생되었습니다."));
     }
 
+
+    /**
+     * @MethodArgumentNotValidException 핸들러
+     * 요청 DTO에서 @Valid 검증 실패 시 호출되는 메서드
+     * 실패한 필드들의 에러 메시지를 한 줄 문자열로 묶어 ApiResponse 형태로 반환한다
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Void>> handleValidationExceptions(MethodArgumentNotValidException e) {
         String errorMessage = e.getBindingResult().getFieldErrors().stream()
-                .map(FieldError::getDefaultMessage)
+                .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
                 .collect(Collectors.joining(", "));
-        
+
+        // 상태 코드 400(Bad Request)와 함께 공통 ApiResponse 포맷에 담아 반환
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(errorMessage));

@@ -34,6 +34,9 @@ public class PostController {
             summary = "게시글 목록 조회"
     )
     public ResponseEntity<ApiResponse<PageResponse<PostDto>>> getAllPosts(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String content,
+            @RequestParam(required = false) Long userId,
             @PageableDefault(size = 10, sort = "createdAt") Pageable pageable) {
         int zeroBasedPage = PaginationUtil.toZeroBasedPage(pageable.getPageNumber());
 
@@ -43,7 +46,7 @@ public class PostController {
             pageable.getSort()
         );
 
-        Page<PostDto> posts = postService.findAll(adjustedPageable);
+        Page<PostDto> posts = postService.findAll(adjustedPageable, title, content, userId);
         PageResponse<PostDto> pageResponse = PageResponse.from(posts);
         return ResponseEntity.ok(ApiResponse.success("게시글 목록 조회가 완료되었습니다.", pageResponse));
     }

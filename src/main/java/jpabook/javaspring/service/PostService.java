@@ -23,8 +23,9 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
-    public Page<PostDto> findAll(Pageable pageable) {
-        return postRepository.findAll(pageable)
+    public Page<PostDto> findAll(Pageable pageable, String title, String content, Long userId) {
+        // Use dynamic query with filters
+        return postRepository.findAllWithFilters(title, content, userId, pageable)
                 .map(PostDto::fromEntity);
     }
 

@@ -3,13 +3,13 @@ package jpabook.javaspring.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jpabook.javaspring.domain.user.CustomUserDetails;
 import jpabook.javaspring.dto.common.ApiResponse;
 import jpabook.javaspring.dto.user.UserDto;
 import jpabook.javaspring.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,8 +26,8 @@ public class UserController {
             security = @SecurityRequirement(name = "bearer-key")
     )
     public ResponseEntity<ApiResponse<UserDto>> getCurrentUser(
-            @AuthenticationPrincipal UserDetails userDetails) {
-        UserDto userDto = userService.findByUsername(userDetails.getUsername());
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        UserDto userDto = userService.findByUserId(userDetails.getId());
         return ResponseEntity.ok(ApiResponse.success("현재 사용자 정보 조회가 완료되었습니다.", userDto));
     }
 

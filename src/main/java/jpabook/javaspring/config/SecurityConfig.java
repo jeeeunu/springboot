@@ -1,5 +1,6 @@
 package jpabook.javaspring.config;
 
+import jpabook.javaspring.domain.user.CustomUserDetailsService;
 import jpabook.javaspring.security.CustomAccessDeniedHandler;
 import jpabook.javaspring.security.CustomAuthenticationEntryPoint;
 import jpabook.javaspring.security.JwtAuthenticationFilter;
@@ -26,6 +27,7 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
+    private final CustomUserDetailsService customUserDetailsService;
 
 
     @Bean
@@ -61,6 +63,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
+                .userDetailsService(customUserDetailsService)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(authenticationEntryPoint)

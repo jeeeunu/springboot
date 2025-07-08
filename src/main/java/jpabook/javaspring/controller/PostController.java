@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jpabook.javaspring.domain.user.CustomUserDetails;
 import jpabook.javaspring.dto.common.ApiResponse;
 import jpabook.javaspring.dto.common.PageResponse;
 import jpabook.javaspring.dto.post.PostCreateDto;
@@ -31,14 +32,15 @@ public class PostController {
 
     @GetMapping
     @Operation(
-            summary = "게시글 목록 조회"
+            summary = "게시글 목록 조회",
+            security = @SecurityRequirement(name = "bearer-key")
     )
     public ResponseEntity<ApiResponse<PageResponse<PostDto>>> getAllPosts(
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String content,
             @RequestParam(required = false) Long userId,
             @PageableDefault(size = 10, sort = "createdAt") Pageable pageable,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         int zeroBasedPage = PaginationUtil.toZeroBasedPage(pageable.getPageNumber());
 
         Pageable adjustedPageable = org.springframework.data.domain.PageRequest.of(
@@ -47,8 +49,7 @@ public class PostController {
             pageable.getSort()
         );
 
-        String username = userDetails != null ? userDetails.getUsername() : null;
-        Page<PostDto> posts = postService.findAll(adjustedPageable, title, content, userId, username);
+        Page<PostDto> posts = postService.findAll(adjustedPageable, title, content, userId, userDetails.getId());
         PageResponse<PostDto> pageResponse = PageResponse.from(posts);
         return ResponseEntity.ok(ApiResponse.success("게시글 목록 조회가 완료되었습니다.", pageResponse));
     }
@@ -60,7 +61,7 @@ public class PostController {
     public ResponseEntity<ApiResponse<PageResponse<PostDto>>> getPostsByUser(
             @PathVariable String username,
             @PageableDefault(size = 10, sort = "createdAt") Pageable pageable,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         int zeroBasedPage = PaginationUtil.toZeroBasedPage(pageable.getPageNumber());
 
         Pageable adjustedPageable = org.springframework.data.domain.PageRequest.of(
@@ -81,7 +82,7 @@ public class PostController {
     )
     public ResponseEntity<ApiResponse<PostDto>> getPostById(
             @PathVariable Long id,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         String username = userDetails != null ? userDetails.getUsername() : null;
         PostDto post = postService.findById(id, username);
         return ResponseEntity.ok(ApiResponse.success("게시글 조회가 완료되었습니다.", post));
@@ -94,7 +95,7 @@ public class PostController {
     )
     public ResponseEntity<ApiResponse<PostDto>> createPost(
             @Valid @RequestBody PostCreateDto createDto,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         PostDto createdPost = postService.create(createDto, userDetails.getUsername());
         return new ResponseEntity<>(ApiResponse.success("게시글 작성이 완료되었습니다.", createdPost), HttpStatus.CREATED);
     }
@@ -107,7 +108,7 @@ public class PostController {
     public ResponseEntity<ApiResponse<PostDto>> updatePost(
             @PathVariable Long id,
             @Valid @RequestBody PostUpdateDto updateDto,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         PostDto updatedPost = postService.update(id, updateDto, userDetails.getUsername());
         return ResponseEntity.ok(ApiResponse.success("게시글 수정이 완료되었습니다.", updatedPost));
     }
@@ -119,7 +120,7 @@ public class PostController {
     )
     public ResponseEntity<ApiResponse<Void>> deletePost(
             @PathVariable Long id,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         postService.delete(id, userDetails.getUsername());
         return ResponseEntity.ok(ApiResponse.success("게시글 삭제가 완료되었습니다."));
     }
@@ -131,7 +132,7 @@ public class PostController {
     )
     public ResponseEntity<ApiResponse<Void>> likePost(
             @PathVariable Long id,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         postService.likePost(id, userDetails.getUsername());
         return ResponseEntity.ok(ApiResponse.success("게시글 좋아요가 완료되었습니다."));
     }
@@ -143,7 +144,7 @@ public class PostController {
     )
     public ResponseEntity<ApiResponse<Void>> unlikePost(
             @PathVariable Long id,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         postService.unlikePost(id, userDetails.getUsername());
         return ResponseEntity.ok(ApiResponse.success("게시글 좋아요 취소가 완료되었습니다."));
     }
@@ -155,7 +156,7 @@ public class PostController {
     )
     public ResponseEntity<ApiResponse<Boolean>> hasUserLikedPost(
             @PathVariable Long id,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         boolean hasLiked = postService.hasUserLikedPost(id, userDetails.getUsername());
         return ResponseEntity.ok(ApiResponse.success("게시글 좋아요 여부 확인이 완료되었습니다.", hasLiked));
     }

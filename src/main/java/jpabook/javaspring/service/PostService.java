@@ -32,14 +32,17 @@ public class PostService {
                 .map(this::convertToDto);
     }
 
-    public Page<PostDto> findAll(Pageable pageable, String title, String content, Long userId, String currentUsername) {
-        // Use dynamic query with filters
-        if (currentUsername == null) {
+    public Page<PostDto> findAll(Pageable pageable, String title, String content, Long userId, Long authUserId) {
+
+        System.out.println("authUserId " + authUserId);
+        if (authUserId == null) {
             return findAll(pageable, title, content, userId);
         }
 
-        User currentUser = userRepository.findByUsername(currentUsername)
+        User currentUser = userRepository.findById(authUserId)
                 .orElse(null);
+
+        System.out.println("currentUser " + currentUser);
 
         if (currentUser == null) {
             return findAll(pageable, title, content, userId);
@@ -98,7 +101,7 @@ public class PostService {
             return PostDto.fromEntity(post, likeCount);
         }
 
-        boolean liked = postLikeRepository.existsByPostAndUser(post, currentUser);
+        boolean liked = postLikeRepository.existsByPostIdAndUserId(post.getId(), currentUser.getId());
         return PostDto.fromEntity(post, likeCount, liked);
     }
 
@@ -109,7 +112,8 @@ public class PostService {
 
     private PostDto convertToDto(Post post, User currentUser) {
         long likeCount = postLikeRepository.countByPost(post);
-        boolean liked = postLikeRepository.existsByPostAndUser(post, currentUser);
+        System.out.println("likeCount " + likeCount);
+        boolean liked = postLikeRepository.existsByPostIdAndUserId(post.getId(), currentUser.getId());
         return PostDto.fromEntity(post, likeCount, liked);
     }
 
@@ -161,7 +165,7 @@ public class PostService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
 
-        if (!postLikeRepository.existsByPostAndUser(post, user)) {
+        if (!postLikeRepository.existsByPostIdAndUserId(post.getId(), user.getId())) {
             PostLike postLike = PostLike.builder()
                     .post(post)
                     .user(user)
@@ -189,7 +193,7 @@ public class PostService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
 
-        return postLikeRepository.existsByPostAndUser(post, user);
+        return postLikeRepository.existsByPostIdAndUserId(post.getId(), user.getId());
     }
 
     public long getPostLikeCount(Long postId) {

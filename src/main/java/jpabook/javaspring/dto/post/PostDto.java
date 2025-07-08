@@ -20,6 +20,7 @@ public class PostDto {
     private UserDto author;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private long likeCount;
 
     public static PostDto fromEntity(Post post) {
         return PostDto.builder()
@@ -29,6 +30,19 @@ public class PostDto {
                 .author(UserDto.fromEntity(post.getAuthor()))
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
+                .likeCount(0) // Default to 0, will be updated by service
+                .build();
+    }
+
+    public static PostDto fromEntity(Post post, long likeCount) {
+        return PostDto.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .author(UserDto.fromEntity(post.getAuthor()))
+                .createdAt(post.getCreatedAt())
+                .updatedAt(post.getUpdatedAt())
+                .likeCount(likeCount)
                 .build();
     }
 }

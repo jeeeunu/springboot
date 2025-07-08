@@ -116,4 +116,49 @@ public class PostController {
         postService.delete(id, userDetails.getUsername());
         return ResponseEntity.ok(ApiResponse.success("게시글 삭제가 완료되었습니다."));
     }
+
+    @PostMapping("/{id}/like")
+    @Operation(
+            summary = "게시글 좋아요",
+            security = { @SecurityRequirement(name = "bearer-key") }
+    )
+    public ResponseEntity<ApiResponse<Void>> likePost(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        postService.likePost(id, userDetails.getUsername());
+        return ResponseEntity.ok(ApiResponse.success("게시글 좋아요가 완료되었습니다."));
+    }
+
+    @DeleteMapping("/{id}/like")
+    @Operation(
+            summary = "게시글 좋아요 취소",
+            security = { @SecurityRequirement(name = "bearer-key") }
+    )
+    public ResponseEntity<ApiResponse<Void>> unlikePost(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        postService.unlikePost(id, userDetails.getUsername());
+        return ResponseEntity.ok(ApiResponse.success("게시글 좋아요 취소가 완료되었습니다."));
+    }
+
+    @GetMapping("/{id}/like")
+    @Operation(
+            summary = "게시글 좋아요 여부 확인",
+            security = { @SecurityRequirement(name = "bearer-key") }
+    )
+    public ResponseEntity<ApiResponse<Boolean>> hasUserLikedPost(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        boolean hasLiked = postService.hasUserLikedPost(id, userDetails.getUsername());
+        return ResponseEntity.ok(ApiResponse.success("게시글 좋아요 여부 확인이 완료되었습니다.", hasLiked));
+    }
+
+    @GetMapping("/{id}/like/count")
+    @Operation(
+            summary = "게시글 좋아요 수 조회"
+    )
+    public ResponseEntity<ApiResponse<Long>> getPostLikeCount(@PathVariable Long id) {
+        long likeCount = postService.getPostLikeCount(id);
+        return ResponseEntity.ok(ApiResponse.success("게시글 좋아요 수 조회가 완료되었습니다.", likeCount));
+    }
 }

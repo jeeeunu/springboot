@@ -1,10 +1,12 @@
 package jpabook.javaspring.service;
 
 import jpabook.javaspring.domain.post.Post;
+import jpabook.javaspring.domain.post.PostLike;
 import jpabook.javaspring.domain.user.User;
 import jpabook.javaspring.dto.post.PostCreateDto;
 import jpabook.javaspring.dto.post.PostDto;
 import jpabook.javaspring.dto.post.PostUpdateDto;
+import jpabook.javaspring.repository.PostLikeRepository;
 import jpabook.javaspring.repository.PostRepository;
 import jpabook.javaspring.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,24 +24,31 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final PostLikeRepository postLikeRepository;
 
     public Page<PostDto> findAll(Pageable pageable, String title, String content, Long userId) {
         // Use dynamic query with filters
         return postRepository.findAllWithFilters(title, content, userId, pageable)
-                .map(PostDto::fromEntity);
+                .map(this::convertToDto);
     }
 
     public Page<PostDto> findByAuthor(String username, Pageable pageable) {
         User author = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
         return postRepository.findByAuthor(author, pageable)
-                .map(PostDto::fromEntity);
+                .map(this::convertToDto);
     }
 
     public PostDto findById(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다: " + id));
-        return PostDto.fromEntity(post);
+        long likeCount = postLikeRepository.countByPost(post);
+        return PostDto.fromEntity(post, likeCount);
+    }
+
+    private PostDto convertToDto(Post post) {
+        long likeCount = postLikeRepository.countByPost(post);
+        return PostDto.fromEntity(post, likeCount);
     }
 
     @Transactional
@@ -49,7 +58,7 @@ public class PostService {
 
         Post post = createDto.toEntity(author);
         Post savedPost = postRepository.save(post);
-        return PostDto.fromEntity(savedPost);
+        return convertToDto(savedPost);
     }
 
     @Transactional
@@ -62,7 +71,7 @@ public class PostService {
         }
 
         post.update(updateDto.getTitle(), updateDto.getContent());
-        return PostDto.fromEntity(post);
+        return convertToDto(post);
     }
 
     @Transactional
@@ -75,5 +84,51 @@ public class PostService {
         }
 
         postRepository.delete(post);
+    }
+
+    @Transactional
+    public void likePost(Long postId, String username) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다: " + postId));
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
+
+        if (!postLikeRepository.existsByPostAndUser(post, user)) {
+            PostLike postLike = PostLike.builder()
+                    .post(post)
+                    .user(user)
+                    .build();
+
+            postLikeRepository.save(postLike);
+        }
+    }
+
+    @Transactional
+    public void unlikePost(Long postId, String username) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다: " + postId));
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
+
+        postLikeRepository.deleteByPostAndUser(post, user);
+    }
+
+    public boolean hasUserLikedPost(Long postId, String username) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다: " + postId));
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
+
+        return postLikeRepository.existsByPostAndUser(post, user);
+    }
+
+    public long getPostLikeCount(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다: " + postId));
+
+        return postLikeRepository.countByPost(post);
     }
 }

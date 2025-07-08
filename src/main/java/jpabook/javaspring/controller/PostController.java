@@ -9,6 +9,7 @@ import jpabook.javaspring.dto.post.PostCreateDto;
 import jpabook.javaspring.dto.post.PostDto;
 import jpabook.javaspring.dto.post.PostUpdateDto;
 import jpabook.javaspring.service.PostService;
+import jpabook.javaspring.util.PaginationUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,7 +34,15 @@ public class PostController {
     )
     public ResponseEntity<ApiResponse<Page<PostDto>>> getAllPosts(
             @PageableDefault(size = 10, sort = "createdAt") Pageable pageable) {
-        Page<PostDto> posts = postService.findAll(pageable);
+        int zeroBasedPage = PaginationUtil.toZeroBasedPage(pageable.getPageNumber());
+
+        Pageable adjustedPageable = org.springframework.data.domain.PageRequest.of(
+            zeroBasedPage, 
+            pageable.getPageSize(), 
+            pageable.getSort()
+        );
+
+        Page<PostDto> posts = postService.findAll(adjustedPageable);
         return ResponseEntity.ok(ApiResponse.success("게시글 목록 조회가 완료되었습니다.", posts));
     }
 
@@ -44,7 +53,15 @@ public class PostController {
     public ResponseEntity<ApiResponse<Page<PostDto>>> getPostsByUser(
             @PathVariable String username,
             @PageableDefault(size = 10, sort = "createdAt") Pageable pageable) {
-        Page<PostDto> posts = postService.findByAuthor(username, pageable);
+        int zeroBasedPage = PaginationUtil.toZeroBasedPage(pageable.getPageNumber());
+
+        Pageable adjustedPageable = org.springframework.data.domain.PageRequest.of(
+            zeroBasedPage, 
+            pageable.getPageSize(), 
+            pageable.getSort()
+        );
+
+        Page<PostDto> posts = postService.findByAuthor(username, adjustedPageable);
         return ResponseEntity.ok(ApiResponse.success("사용자 게시글 조회가 완료되었습니다.", posts));
     }
 

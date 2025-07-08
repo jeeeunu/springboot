@@ -33,7 +33,7 @@ public class UserController {
 
     @GetMapping("/{username}")
     @Operation(
-            summary = "사용자 정보 조회 (Public)",
+            summary = "사용자 정보 조회",
             security = {} // 오픈 API
     )
     public ResponseEntity<ApiResponse<UserDto>> getUserByUsername(@PathVariable String username) {

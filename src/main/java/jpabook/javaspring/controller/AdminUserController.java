@@ -24,7 +24,7 @@ public class AdminUserController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(
-            summary = "모든 사용자 조회 (Admin용)",
+            summary = "모든 사용자 조회",
             security = @SecurityRequirement(name = "bearer-key")
     )
     public ResponseEntity<ApiResponse<List<UserDto>>> getAllUsers() {
@@ -35,7 +35,7 @@ public class AdminUserController {
     @DeleteMapping("/{username}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(
-            summary = "사용자 삭제 (Admin용)",
+            summary = "사용자 삭제",
             security = @SecurityRequirement(name = "bearer-key")
     )
     public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable String username) {

@@ -32,11 +32,47 @@ public class PostService {
                 .map(this::convertToDto);
     }
 
+    public Page<PostDto> findAll(Pageable pageable, String title, String content, Long userId, String currentUsername) {
+        // Use dynamic query with filters
+        if (currentUsername == null) {
+            return findAll(pageable, title, content, userId);
+        }
+
+        User currentUser = userRepository.findByUsername(currentUsername)
+                .orElse(null);
+
+        if (currentUser == null) {
+            return findAll(pageable, title, content, userId);
+        }
+
+        return postRepository.findAllWithFilters(title, content, userId, pageable)
+                .map(post -> convertToDto(post, currentUser));
+    }
+
     public Page<PostDto> findByAuthor(String username, Pageable pageable) {
         User author = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
         return postRepository.findByAuthor(author, pageable)
                 .map(this::convertToDto);
+    }
+
+    public Page<PostDto> findByAuthor(String username, Pageable pageable, String currentUsername) {
+        if (currentUsername == null) {
+            return findByAuthor(username, pageable);
+        }
+
+        User author = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
+
+        User currentUser = userRepository.findByUsername(currentUsername)
+                .orElse(null);
+
+        if (currentUser == null) {
+            return findByAuthor(username, pageable);
+        }
+
+        return postRepository.findByAuthor(author, pageable)
+                .map(post -> convertToDto(post, currentUser));
     }
 
     public PostDto findById(Long id) {
@@ -46,9 +82,35 @@ public class PostService {
         return PostDto.fromEntity(post, likeCount);
     }
 
+    public PostDto findById(Long id, String currentUsername) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다: " + id));
+        long likeCount = postLikeRepository.countByPost(post);
+
+        if (currentUsername == null) {
+            return PostDto.fromEntity(post, likeCount);
+        }
+
+        User currentUser = userRepository.findByUsername(currentUsername)
+                .orElse(null);
+
+        if (currentUser == null) {
+            return PostDto.fromEntity(post, likeCount);
+        }
+
+        boolean liked = postLikeRepository.existsByPostAndUser(post, currentUser);
+        return PostDto.fromEntity(post, likeCount, liked);
+    }
+
     private PostDto convertToDto(Post post) {
         long likeCount = postLikeRepository.countByPost(post);
         return PostDto.fromEntity(post, likeCount);
+    }
+
+    private PostDto convertToDto(Post post, User currentUser) {
+        long likeCount = postLikeRepository.countByPost(post);
+        boolean liked = postLikeRepository.existsByPostAndUser(post, currentUser);
+        return PostDto.fromEntity(post, likeCount, liked);
     }
 
     @Transactional
@@ -58,7 +120,9 @@ public class PostService {
 
         Post post = createDto.toEntity(author);
         Post savedPost = postRepository.save(post);
-        return convertToDto(savedPost);
+
+        // The author automatically likes their own post
+        return convertToDto(savedPost, author);
     }
 
     @Transactional
@@ -66,12 +130,15 @@ public class PostService {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다: " + id));
 
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
+
         if (!post.getAuthor().getUsername().equals(username)) {
             throw new AccessDeniedException("이 게시물을 수정할 권한이 없습니다");
         }
 
         post.update(updateDto.getTitle(), updateDto.getContent());
-        return convertToDto(post);
+        return convertToDto(post, user);
     }
 
     @Transactional

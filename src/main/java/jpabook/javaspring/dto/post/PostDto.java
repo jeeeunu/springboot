@@ -21,6 +21,7 @@ public class PostDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private long likeCount;
+    private boolean liked;
 
     public static PostDto fromEntity(Post post) {
         return PostDto.builder()
@@ -31,6 +32,7 @@ public class PostDto {
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
                 .likeCount(0) // Default to 0, will be updated by service
+                .liked(false) // Default to false, will be updated by service
                 .build();
     }
 
@@ -43,6 +45,20 @@ public class PostDto {
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
                 .likeCount(likeCount)
+                .liked(false) // Default to false, will be updated by service
+                .build();
+    }
+
+    public static PostDto fromEntity(Post post, long likeCount, boolean liked) {
+        return PostDto.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .author(UserDto.fromEntity(post.getAuthor()))
+                .createdAt(post.getCreatedAt())
+                .updatedAt(post.getUpdatedAt())
+                .likeCount(likeCount)
+                .liked(liked)
                 .build();
     }
 }

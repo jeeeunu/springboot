@@ -37,7 +37,8 @@ public class PostController {
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String content,
             @RequestParam(required = false) Long userId,
-            @PageableDefault(size = 10, sort = "createdAt") Pageable pageable) {
+            @PageableDefault(size = 10, sort = "createdAt") Pageable pageable,
+            @AuthenticationPrincipal UserDetails userDetails) {
         int zeroBasedPage = PaginationUtil.toZeroBasedPage(pageable.getPageNumber());
 
         Pageable adjustedPageable = org.springframework.data.domain.PageRequest.of(
@@ -46,7 +47,8 @@ public class PostController {
             pageable.getSort()
         );
 
-        Page<PostDto> posts = postService.findAll(adjustedPageable, title, content, userId);
+        String username = userDetails != null ? userDetails.getUsername() : null;
+        Page<PostDto> posts = postService.findAll(adjustedPageable, title, content, userId, username);
         PageResponse<PostDto> pageResponse = PageResponse.from(posts);
         return ResponseEntity.ok(ApiResponse.success("게시글 목록 조회가 완료되었습니다.", pageResponse));
     }
@@ -57,7 +59,8 @@ public class PostController {
     )
     public ResponseEntity<ApiResponse<PageResponse<PostDto>>> getPostsByUser(
             @PathVariable String username,
-            @PageableDefault(size = 10, sort = "createdAt") Pageable pageable) {
+            @PageableDefault(size = 10, sort = "createdAt") Pageable pageable,
+            @AuthenticationPrincipal UserDetails userDetails) {
         int zeroBasedPage = PaginationUtil.toZeroBasedPage(pageable.getPageNumber());
 
         Pageable adjustedPageable = org.springframework.data.domain.PageRequest.of(
@@ -66,7 +69,8 @@ public class PostController {
             pageable.getSort()
         );
 
-        Page<PostDto> posts = postService.findByAuthor(username, adjustedPageable);
+        String currentUsername = userDetails != null ? userDetails.getUsername() : null;
+        Page<PostDto> posts = postService.findByAuthor(username, adjustedPageable, currentUsername);
         PageResponse<PostDto> pageResponse = PageResponse.from(posts);
         return ResponseEntity.ok(ApiResponse.success("사용자 게시글 조회가 완료되었습니다.", pageResponse));
     }
@@ -75,8 +79,11 @@ public class PostController {
     @Operation(
             summary = "게시글 단일 조회"
     )
-    public ResponseEntity<ApiResponse<PostDto>> getPostById(@PathVariable Long id) {
-        PostDto post = postService.findById(id);
+    public ResponseEntity<ApiResponse<PostDto>> getPostById(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        String username = userDetails != null ? userDetails.getUsername() : null;
+        PostDto post = postService.findById(id, username);
         return ResponseEntity.ok(ApiResponse.success("게시글 조회가 완료되었습니다.", post));
     }
 

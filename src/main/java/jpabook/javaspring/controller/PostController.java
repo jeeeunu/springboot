@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jpabook.javaspring.dto.common.ApiResponse;
+import jpabook.javaspring.dto.common.PageResponse;
 import jpabook.javaspring.dto.post.PostCreateDto;
 import jpabook.javaspring.dto.post.PostDto;
 import jpabook.javaspring.dto.post.PostUpdateDto;
@@ -32,7 +33,7 @@ public class PostController {
     @Operation(
             summary = "게시글 목록 조회"
     )
-    public ResponseEntity<ApiResponse<Page<PostDto>>> getAllPosts(
+    public ResponseEntity<ApiResponse<PageResponse<PostDto>>> getAllPosts(
             @PageableDefault(size = 10, sort = "createdAt") Pageable pageable) {
         int zeroBasedPage = PaginationUtil.toZeroBasedPage(pageable.getPageNumber());
 
@@ -43,14 +44,15 @@ public class PostController {
         );
 
         Page<PostDto> posts = postService.findAll(adjustedPageable);
-        return ResponseEntity.ok(ApiResponse.success("게시글 목록 조회가 완료되었습니다.", posts));
+        PageResponse<PostDto> pageResponse = PageResponse.from(posts);
+        return ResponseEntity.ok(ApiResponse.success("게시글 목록 조회가 완료되었습니다.", pageResponse));
     }
 
     @GetMapping("/user/{username}")
     @Operation(
             summary = "사용자 게시글 조회"
     )
-    public ResponseEntity<ApiResponse<Page<PostDto>>> getPostsByUser(
+    public ResponseEntity<ApiResponse<PageResponse<PostDto>>> getPostsByUser(
             @PathVariable String username,
             @PageableDefault(size = 10, sort = "createdAt") Pageable pageable) {
         int zeroBasedPage = PaginationUtil.toZeroBasedPage(pageable.getPageNumber());
@@ -62,7 +64,8 @@ public class PostController {
         );
 
         Page<PostDto> posts = postService.findByAuthor(username, adjustedPageable);
-        return ResponseEntity.ok(ApiResponse.success("사용자 게시글 조회가 완료되었습니다.", posts));
+        PageResponse<PostDto> pageResponse = PageResponse.from(posts);
+        return ResponseEntity.ok(ApiResponse.success("사용자 게시글 조회가 완료되었습니다.", pageResponse));
     }
 
     @GetMapping("/{id}")

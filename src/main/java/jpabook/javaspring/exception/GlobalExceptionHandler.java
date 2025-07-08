@@ -1,6 +1,9 @@
 package jpabook.javaspring.exception;
 
 import jpabook.javaspring.dto.common.ApiResponse;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.data.mapping.PropertyReferenceException;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -57,5 +60,25 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(ApiResponse.error(403, "접근 권한이 없습니다."));
+    }
+
+    @ExceptionHandler(PropertyReferenceException.class)
+    public ResponseEntity<ApiResponse<Void>> handlePropertyReferenceException(PropertyReferenceException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error("정렬 속성이 유효하지 않습니다: " + e.getPropertyName()));
+    }
+
+    @ExceptionHandler(InvalidDataAccessApiUsageException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidDataAccessApiUsageException(InvalidDataAccessApiUsageException e) {
+        String message = e.getMessage();
+        if (message != null && message.contains("Direction")) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponse.error("정렬 방향이 유효하지 않습니다. 'asc' 또는 'desc'를 사용하세요."));
+        }
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error("데이터 접근 오류: " + message));
     }
 }

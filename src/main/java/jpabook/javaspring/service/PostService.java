@@ -24,14 +24,14 @@ public class PostService {
     private final UserRepository userRepository;
 
     public Page<PostDto> findAll(Pageable pageable) {
-        return postRepository.findAllByOrderByCreatedAtDesc(pageable)
+        return postRepository.findAll(pageable)
                 .map(PostDto::fromEntity);
     }
 
     public Page<PostDto> findByAuthor(String username, Pageable pageable) {
         User author = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
-        return postRepository.findByAuthorOrderByCreatedAtDesc(author, pageable)
+        return postRepository.findByAuthor(author, pageable)
                 .map(PostDto::fromEntity);
     }
 

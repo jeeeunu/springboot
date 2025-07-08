@@ -69,15 +69,15 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token);
             return true;
         } catch (SignatureException ex) {
-            System.out.println("Invalid JWT signature");
+            System.out.println("유효하지 않은 JWT 서명");
         } catch (MalformedJwtException ex) {
-            System.out.println("Invalid JWT token");
+            System.out.println("유효하지 않은 JWT 토큰");
         } catch (ExpiredJwtException ex) {
-            System.out.println("Expired JWT token");
+            System.out.println("만료된 JWT 토큰");
         } catch (UnsupportedJwtException ex) {
-            System.out.println("Unsupported JWT token");
+            System.out.println("지원되지 않는 JWT 토큰");
         } catch (IllegalArgumentException ex) {
-            System.out.println("JWT claims string is empty");
+            System.out.println("JWT claims 문자열이 비어있음");
         }
         return false;
     }

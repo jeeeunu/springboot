@@ -27,7 +27,7 @@ public class PostService {
     private final PostLikeRepository postLikeRepository;
 
     public Page<PostDto> findAll(Pageable pageable, String title, String content, Long userId) {
-        // Use dynamic query with filters
+        // 필터와 함께 동적 쿼리 사용
         return postRepository.findAllWithFilters(title, content, userId, pageable)
                 .map(this::convertToDto);
     }
@@ -125,7 +125,7 @@ public class PostService {
         Post post = createDto.toEntity(author);
         Post savedPost = postRepository.save(post);
 
-        // The author automatically likes their own post
+        // 작성자는 자동으로 자신의 게시물을 좋아합니다
         return convertToDto(savedPost, author);
     }
 

@@ -76,7 +76,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 case "updatedAt" -> orders.add(new com.querydsl.core.types.OrderSpecifier<>(direction, post.updatedAt));
                 case "author.username" -> orders.add(new com.querydsl.core.types.OrderSpecifier<>(direction, author.username));
                 case "author.name" -> orders.add(new com.querydsl.core.types.OrderSpecifier<>(direction, author.name));
-                default -> orders.add(new com.querydsl.core.types.OrderSpecifier<>(direction, post.createdAt)); // fallback
+                default -> orders.add(new com.querydsl.core.types.OrderSpecifier<>(direction, post.createdAt)); // 기본값
             }
         }
 

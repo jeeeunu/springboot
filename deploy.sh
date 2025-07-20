@@ -55,6 +55,11 @@ ssh $REMOTE_USER@$REMOTE_IP << EOF
     --name $CONTAINER_NAME \
     --network router \
     -p $REMOTE_PORT:$LOCAL_PORT \
+    -e DB_HOST=$DB_HOST \
+    -e DB_PORT=$DB_PORT \
+    -e DB_NAME=$DB_NAME \
+    -e DB_USERNAME=$DB_USERNAME \
+    -e DB_PASSWORD=$DB_PASSWORD \
     $IMAGE_NAME
 EOF
 

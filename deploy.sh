@@ -2,7 +2,7 @@
 set -e
 
 # ===== 환경변수 로드 =====
-source .env
+source .env.deploy
 
 # ===== 설정 =====
 IMAGE_NAME=java-app:latest
@@ -38,6 +38,12 @@ docker save $IMAGE_NAME -o $TAR_NAME
 # ===== 4. 서버로 전송 =====
 echo "🚀 서버로 tar 전송 중..."
 scp $TAR_NAME $REMOTE_USER@$REMOTE_IP:$REMOTE_DIR/
+
+# 🔥 (로컬) 전송 후 tar 삭제 + 빌드 캐시 정리(선택)
+echo "[로컬] tar, 이미지 삭제 및 캐시 정리..."
+rm -f "$TAR_NAME"
+docker rmi -f $IMAGE_NAME || true
+docker builder prune -af || true
 
 # ===== 5. 서버 배포 =====
 echo "🖥️ 서버에서 컨테이너 재배포 중..."

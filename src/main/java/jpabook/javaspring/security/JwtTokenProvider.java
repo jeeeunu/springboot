@@ -8,6 +8,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import jpabook.javaspring.domain.user.CustomUserDetails;
 import jpabook.javaspring.domain.user.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,21 +36,19 @@ public class JwtTokenProvider {
     }
 
     public String generateToken(Authentication authentication) {
-        User userPrincipal = (User) authentication.getPrincipal();
+        Object principal = authentication.getPrincipal();
 
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("id", userPrincipal.getId());
-        claims.put("username", userPrincipal.getUsername());
-        claims.put("name", userPrincipal.getName());
-        claims.put("email", userPrincipal.getEmail());
-        claims.put("role", userPrincipal.getRole().name());
+        CustomUserDetails cud = (CustomUserDetails) principal;
+
+        Long userId   = cud.getId();
+        String email  = cud.getUsername();
 
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(userPrincipal.getUsername())
+                .setSubject(String.valueOf(userId))
+                .claim("email", email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
-                .signWith(getSigningKey())
+                .setExpiration(Date.from(Instant.now().plus(Duration.ofHours(2))))
+                .signWith(SignatureAlgorithm.HS256, this.getSigningKey())
                 .compact();
     }
 

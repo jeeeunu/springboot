@@ -1,5 +1,6 @@
 package jpabook.javaspring.dto.user;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -31,11 +32,11 @@ public class UserRegistrationDto {
 
     @NotBlank()
     @Email(message = "올바른 이메일 형식을 입력해주세요")
+    @Schema(description = "이메일 주소", example = "string@example.com")
     private String email;
     
     public User toEntity(PasswordEncoder passwordEncoder) {
         return User.builder()
-                .username(username)
                 .password(passwordEncoder.encode(password))
                 .name(name)
                 .email(email)

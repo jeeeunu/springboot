@@ -54,12 +54,12 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.success("게시글 목록 조회가 완료되었습니다.", pageResponse));
     }
 
-    @GetMapping("/user/{username}")
+    @GetMapping("/user/{userId}")
     @Operation(
             summary = "사용자 게시글 조회"
     )
     public ResponseEntity<ApiResponse<PageResponse<PostDto>>> getPostsByUser(
-            @PathVariable String username,
+            @PathVariable Long userId,
             @PageableDefault(size = 10, sort = "createdAt") Pageable pageable,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         int zeroBasedPage = PaginationUtil.toZeroBasedPage(pageable.getPageNumber());
@@ -70,8 +70,8 @@ public class PostController {
             pageable.getSort()
         );
 
-        String currentUsername = userDetails != null ? userDetails.getUsername() : null;
-        Page<PostDto> posts = postService.findByAuthor(username, adjustedPageable, currentUsername);
+        Long currentUserId = userDetails != null ? userDetails.getId() : null;
+        Page<PostDto> posts = postService.findByAuthor(userId, adjustedPageable, currentUserId);
         PageResponse<PostDto> pageResponse = PageResponse.from(posts);
         return ResponseEntity.ok(ApiResponse.success("사용자 게시글 조회가 완료되었습니다.", pageResponse));
     }
@@ -83,8 +83,8 @@ public class PostController {
     public ResponseEntity<ApiResponse<PostDto>> getPostById(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        String username = userDetails != null ? userDetails.getUsername() : null;
-        PostDto post = postService.findById(id, username);
+        Long userId = userDetails != null ? userDetails.getId() : null;
+        PostDto post = postService.findById(id, userId);
         return ResponseEntity.ok(ApiResponse.success("게시글 조회가 완료되었습니다.", post));
     }
 
@@ -96,7 +96,7 @@ public class PostController {
     public ResponseEntity<ApiResponse<PostDto>> createPost(
             @Valid @RequestBody PostCreateDto createDto,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        PostDto createdPost = postService.create(createDto, userDetails.getUsername());
+        PostDto createdPost = postService.create(createDto, userDetails.getId());
         return new ResponseEntity<>(ApiResponse.success("게시글 작성이 완료되었습니다.", createdPost), HttpStatus.CREATED);
     }
 
@@ -109,7 +109,7 @@ public class PostController {
             @PathVariable Long id,
             @Valid @RequestBody PostUpdateDto updateDto,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        PostDto updatedPost = postService.update(id, updateDto, userDetails.getUsername());
+        PostDto updatedPost = postService.update(id, updateDto, userDetails.getId());
         return ResponseEntity.ok(ApiResponse.success("게시글 수정이 완료되었습니다.", updatedPost));
     }
 
@@ -133,7 +133,7 @@ public class PostController {
     public ResponseEntity<ApiResponse<Void>> likePost(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        postService.likePost(id, userDetails.getUsername());
+        postService.likePost(id, userDetails.getId());
         return ResponseEntity.ok(ApiResponse.success("게시글 좋아요가 완료되었습니다."));
     }
 
@@ -145,7 +145,7 @@ public class PostController {
     public ResponseEntity<ApiResponse<Void>> unlikePost(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        postService.unlikePost(id, userDetails.getUsername());
+        postService.unlikePost(id, userDetails.getId());
         return ResponseEntity.ok(ApiResponse.success("게시글 좋아요 취소가 완료되었습니다."));
     }
 
@@ -157,7 +157,7 @@ public class PostController {
     public ResponseEntity<ApiResponse<Boolean>> hasUserLikedPost(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        boolean hasLiked = postService.hasUserLikedPost(id, userDetails.getUsername());
+        boolean hasLiked = postService.hasUserLikedPost(id, userDetails.getId());
         return ResponseEntity.ok(ApiResponse.success("게시글 좋아요 여부 확인이 완료되었습니다.", hasLiked));
     }
 

@@ -1,5 +1,6 @@
 package jpabook.javaspring.dto.user;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +14,8 @@ import lombok.NoArgsConstructor;
 public class UserLoginDto {
 
     @NotBlank()
-    private String username;
+    @Schema(example = "string@example.com")
+    private String email;
 
     @NotBlank()
     private String password;

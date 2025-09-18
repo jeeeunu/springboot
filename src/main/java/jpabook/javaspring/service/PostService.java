@@ -52,26 +52,26 @@ public class PostService {
                 .map(post -> convertToDto(post, currentUser));
     }
 
-    public Page<PostDto> findByAuthor(String username, Pageable pageable) {
-        User author = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
+    public Page<PostDto> findByAuthor(Long userId, Pageable pageable) {
+        User author = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + userId));
         return postRepository.findByAuthor(author, pageable)
                 .map(this::convertToDto);
     }
 
-    public Page<PostDto> findByAuthor(String username, Pageable pageable, String currentUsername) {
-        if (currentUsername == null) {
-            return findByAuthor(username, pageable);
+    public Page<PostDto> findByAuthor(Long userId, Pageable pageable, Long currentUserId) {
+        if (currentUserId == null) {
+            return findByAuthor(userId, pageable);
         }
 
-        User author = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
+        User author = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + userId));
 
-        User currentUser = userRepository.findByUsername(currentUsername)
+        User currentUser = userRepository.findById(currentUserId)
                 .orElse(null);
 
         if (currentUser == null) {
-            return findByAuthor(username, pageable);
+            return findByAuthor(userId, pageable);
         }
 
         return postRepository.findByAuthor(author, pageable)
@@ -85,16 +85,16 @@ public class PostService {
         return PostDto.fromEntity(post, likeCount);
     }
 
-    public PostDto findById(Long id, String currentUsername) {
+    public PostDto findById(Long id, Long currentUserId) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다: " + id));
         long likeCount = postLikeRepository.countByPost(post);
 
-        if (currentUsername == null) {
+        if (currentUserId == null) {
             return PostDto.fromEntity(post, likeCount);
         }
 
-        User currentUser = userRepository.findByUsername(currentUsername)
+        User currentUser = userRepository.findById(currentUserId)
                 .orElse(null);
 
         if (currentUser == null) {
@@ -118,9 +118,9 @@ public class PostService {
     }
 
     @Transactional
-    public PostDto create(PostCreateDto createDto, String username) {
-        User author = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
+    public PostDto create(PostCreateDto createDto, Long userId) {
+        User author = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + userId));
 
         Post post = createDto.toEntity(author);
         Post savedPost = postRepository.save(post);
@@ -130,14 +130,14 @@ public class PostService {
     }
 
     @Transactional
-    public PostDto update(Long id, PostUpdateDto updateDto, String username) {
+    public PostDto update(Long id, PostUpdateDto updateDto, Long userId) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다: " + id));
 
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + userId));
 
-        if (!post.getAuthor().getUsername().equals(username)) {
+        if (!post.getAuthor().getUsername().equals(userId)) {
             throw new AccessDeniedException("이 게시물을 수정할 권한이 없습니다");
         }
 
@@ -158,12 +158,12 @@ public class PostService {
     }
 
     @Transactional
-    public void likePost(Long postId, String username) {
+    public void likePost(Long postId, Long userId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다: " + postId));
 
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + userId));
 
         if (!postLikeRepository.existsByPostIdAndUserId(post.getId(), user.getId())) {
             PostLike postLike = PostLike.builder()
@@ -176,22 +176,22 @@ public class PostService {
     }
 
     @Transactional
-    public void unlikePost(Long postId, String username) {
+    public void unlikePost(Long postId, Long userId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다: " + postId));
 
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + userId));
 
         postLikeRepository.deleteByPostAndUser(post, user);
     }
 
-    public boolean hasUserLikedPost(Long postId, String username) {
+    public boolean hasUserLikedPost(Long postId, Long userId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다: " + postId));
 
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + userId));
 
         return postLikeRepository.existsByPostIdAndUserId(post.getId(), user.getId());
     }

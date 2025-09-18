@@ -26,9 +26,6 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String username;
-
     @Column(nullable = false)
     private String password;
 
@@ -60,11 +57,17 @@ public class User implements UserDetails {
         updatedAt = LocalDateTime.now();
     }
 
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
     // UserDetails implementation
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
+
 
     @Override
     public boolean isAccountNonExpired() {

@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,16 +25,16 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserDto findByUsername(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
-        return UserDto.fromEntity(user);
-    }
-
 
     public UserDto findByUserId(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: ID " + userId));
+        return UserDto.fromEntity(user);
+    }
+
+    public UserDto findByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: ID " + email));
         return UserDto.fromEntity(user);
     }
 
@@ -45,8 +46,8 @@ public class UserService {
 
     @Transactional
     public UserDto register(UserRegistrationDto registrationDto) {
-        if (userRepository.existsByUsername(registrationDto.getUsername())) {
-            throw new IllegalArgumentException("이미 존재하는 사용자명입니다");
+        if (userRepository.existsByEmail(registrationDto.getEmail())) {
+            throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
         }
         if (userRepository.existsByEmail(registrationDto.getEmail())) {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다");
@@ -58,9 +59,9 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteByUsername(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
+    public void deleteByUserId(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + userId));
         userRepository.delete(user);
     }
 }

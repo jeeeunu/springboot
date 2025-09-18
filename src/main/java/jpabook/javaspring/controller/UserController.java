@@ -31,13 +31,13 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success("현재 사용자 정보 조회가 완료되었습니다.", userDto));
     }
 
-    @GetMapping("/{username}")
+    @GetMapping("/{id}")
     @Operation(
             summary = "사용자 정보 조회",
             security = {} // 오픈 API
     )
-    public ResponseEntity<ApiResponse<UserDto>> getUserByUsername(@PathVariable String username) {
-        UserDto userDto = userService.findByUsername(username);
+    public ResponseEntity<ApiResponse<UserDto>> getUserByUsername(@PathVariable Long id) {
+        UserDto userDto = userService.findByUserId(id);
         return ResponseEntity.ok(ApiResponse.success("사용자 정보 조회가 완료되었습니다.", userDto));
     }
 }

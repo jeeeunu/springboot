@@ -32,14 +32,4 @@ public class AdminUserController {
         return ResponseEntity.ok(ApiResponse.success("사용자 목록 조회가 완료되었습니다.", users));
     }
 
-    @DeleteMapping("/{username}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(
-            summary = "사용자 삭제",
-            security = @SecurityRequirement(name = "bearer-key")
-    )
-    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable String username) {
-        userService.deleteByUsername(username);
-        return ResponseEntity.ok(ApiResponse.success("사용자 삭제가 완료되었습니다."));
-    }
 }

@@ -19,9 +19,10 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
+/* JWT
+ * 생성,파싱,검증
+ * */
 @Component
 public class JwtTokenProvider {
 

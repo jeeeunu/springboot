@@ -2,7 +2,7 @@
 set -e
 
 # ===== 환경변수 로드 =====
-source .env.deploy
+source .env
 
 # ===== 설정 =====
 IMAGE_NAME=java-app:latest

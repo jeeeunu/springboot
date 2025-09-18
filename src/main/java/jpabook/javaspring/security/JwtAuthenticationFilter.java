@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jpabook.javaspring.domain.user.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,7 +25,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider tokenProvider;
-    private final UserDetailsService userDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -34,20 +35,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String jwt = getJwtFromRequest(request);
 
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-                // 토큰에서 사용자 식별 정보(username or id) 추출
-                String username = tokenProvider.getUsernameFromToken(jwt);
+                // 토큰에서 userId 추출
+                Long userId = tokenProvider.getUserIdFromToken(jwt);
 
-                // DB 또는 UserDetailsService를 통해 사용자 정보 로드
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                // userId로 사용자 로드
+                UserDetails userDetails = customUserDetailsService.loadUserById(userId);
 
-                // Spring Security에서 사용할 인증 객체 생성
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
+                // 인증 객체 생성 및 컨텍스트 저장
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(
+                                userDetails, null, userDetails.getAuthorities());
 
-                // 요청 정보를 인증 객체에 추가 (IP, 세션 정보 등)
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                // SecurityContext에 인증 객체 저장 → 이후 컨트롤러에서 @AuthenticationPrincipal 등으로 접근 가능
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception ex) {

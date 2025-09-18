@@ -37,8 +37,7 @@ public class AuthController {
 
     @PostMapping("/login")
     @Operation(
-            summary = "로그인",
-            security = { @SecurityRequirement(name = "bearer-key") }
+            summary = "로그인"
     )
     public ResponseEntity<ApiResponse<TokenResponse>> login(@Valid @RequestBody UserLoginDto loginDto) {
         TokenResponse tokenResponse = authService.login(loginDto);

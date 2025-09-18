@@ -1,6 +1,6 @@
 package jpabook.javaspring.config;
 
-import jpabook.javaspring.domain.user.CustomUserDetailsService;
+import jpabook.javaspring.features.user.domains.CustomUserDetailsService;
 import jpabook.javaspring.security.CustomAccessDeniedHandler;
 import jpabook.javaspring.security.CustomAuthenticationEntryPoint;
 import jpabook.javaspring.security.JwtAuthenticationFilter;

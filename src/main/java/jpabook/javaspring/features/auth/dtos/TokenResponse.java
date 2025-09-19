@@ -11,16 +11,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TokenResponse<T> {
+public class TokenResponse {
     private String accessToken;
     private String tokenType;
-    private T authUser;
 
-    public static <T> TokenResponse<T> of(String accessToken, T userDto) {
-        return TokenResponse.<T>builder()
+    public static TokenResponse of(String accessToken) {
+        return TokenResponse.builder()
                 .accessToken(accessToken)
                 .tokenType("Bearer")
-                .authUser(userDto)
                 .build();
     }
 }

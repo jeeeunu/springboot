@@ -40,7 +40,7 @@ public class UserRegistrationDto {
                 .password(passwordEncoder.encode(password))
                 .name(name)
                 .email(email)
-                .role(Role.USER) // Default role for new users
+                .role(Role.USER)
                 .build();
     }
 }

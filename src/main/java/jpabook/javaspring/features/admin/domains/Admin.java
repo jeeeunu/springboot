@@ -1,7 +1,6 @@
-package jpabook.javaspring.features.post.domains;
+package jpabook.javaspring.features.admin.domains;
 
 import jakarta.persistence.*;
-import jpabook.javaspring.features.user.domains.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,31 +9,34 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "posts")
+@Table(name = "admins")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Post {
-
+public class Admin {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true)
+    private String loginId;
+
     @Column(nullable = false)
-    private String title;
+    private String password;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String content;
+    private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User author;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AdminRole role;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    private LocalDateTime deletedAt;
 
     @PrePersist
     protected void onCreate() {
@@ -46,8 +48,11 @@ public class Post {
         updatedAt = LocalDateTime.now();
     }
 
-    public void update(String title, String content) {
-        this.title = title;
-        this.content = content;
+    public void softDelete() {
+        this.deletedAt = LocalDateTime.now();
+    }
+
+    public boolean isDeleted() {
+        return this.deletedAt != null;
     }
 }

@@ -31,8 +31,8 @@ public class PostDto {
                 .author(UserDto.fromEntity(post.getAuthor()))
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
-                .likeCount(0) // Default to 0, will be updated by service
-                .liked(false) // Default to false, will be updated by service
+                .likeCount(0)
+                .liked(false)
                 .build();
     }
 
@@ -45,7 +45,7 @@ public class PostDto {
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
                 .likeCount(likeCount)
-                .liked(false) // Default to false, will be updated by service
+                .liked(false)
                 .build();
     }
 

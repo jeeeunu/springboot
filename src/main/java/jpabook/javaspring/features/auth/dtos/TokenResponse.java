@@ -1,5 +1,6 @@
 package jpabook.javaspring.features.auth.dtos;
 
+import jpabook.javaspring.features.admin.dtos.AdminSummaryResponseDto;
 import jpabook.javaspring.features.user.dtos.UserDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,16 +11,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TokenResponse {
+public class TokenResponse<T> {
     private String accessToken;
     private String tokenType;
-    private UserDto user;
-    
-    public static TokenResponse of(String accessToken, UserDto userDto) {
-        return TokenResponse.builder()
+    private T authUser;
+
+    public static <T> TokenResponse<T> of(String accessToken, T userDto) {
+        return TokenResponse.<T>builder()
                 .accessToken(accessToken)
                 .tokenType("Bearer")
-                .user(userDto)
+                .authUser(userDto)
                 .build();
     }
 }

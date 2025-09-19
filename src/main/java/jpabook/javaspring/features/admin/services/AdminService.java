@@ -17,8 +17,15 @@ public class AdminService {
 
     public AdminSummaryResponseDto create(AdminCreateDto createDto) {
 
-        Admin admin = createDto.toEntity(passwordEncoder);
+        AdminSummaryResponseDto admin = createDto.toEntity(passwordEncoder);
 
-        return null;
+        return admin;
+    }
+
+    public AdminSummaryResponseDto findByloginId(String loginId) {
+        Admin admin = Admin.builder()
+                .loginId(loginId)
+                .build();
+        return AdminSummaryResponseDto.fromEntity(admin);
     }
 }

@@ -1,5 +1,6 @@
-package jpabook.javaspring.features.user.domains;
+package jpabook.javaspring.features.user.services;
 
+import jpabook.javaspring.features.user.domains.CustomUserDetails;
 import jpabook.javaspring.features.user.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

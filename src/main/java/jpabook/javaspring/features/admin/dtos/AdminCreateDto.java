@@ -23,11 +23,11 @@ public class AdminCreateDto {
     @NotBlank()
     private AdminRole role;
 
-    public Admin toEntity(PasswordEncoder passwordEncoder) {
-        return Admin.builder()
+    public AdminSummaryResponseDto toEntity(PasswordEncoder passwordEncoder) {
+        return AdminSummaryResponseDto.fromEntity(Admin.builder()
                 .password(passwordEncoder.encode(password))
                 .loginId(loginId)
                 .role(role)
-                .build();
+                .build());
     }
 }

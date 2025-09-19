@@ -1,7 +1,7 @@
 package jpabook.javaspring.features.admin.domains;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public enum AdminRole {
-    SUPER_ADMIN,
-    ADMIN,
-    MANAGER
+    ADMIN, SUPER_ADMIN,MANAGER;
 }

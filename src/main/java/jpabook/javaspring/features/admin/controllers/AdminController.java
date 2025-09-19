@@ -39,6 +39,6 @@ public class AdminController {
             @Valid @RequestBody AdminCreateDto createDto,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         AdminSummaryResponseDto createdPost = adminService.create(createDto);
-        return new ResponseEntity<>(ApiResponse.success("게시글 작성이 완료되었습니다.", createdPost), HttpStatus.CREATED);
+        return new ResponseEntity<>(ApiResponse.success("관리자 생성이 완료되었습니다.", createdPost), HttpStatus.CREATED);
     }
 }

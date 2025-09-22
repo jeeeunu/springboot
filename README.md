@@ -7,3 +7,7 @@
 - PostgreSQL
 - Lombok
 - Validation
+
+## deploy
+
+![](src/main/resources/project_deploy.png)

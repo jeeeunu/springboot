@@ -29,7 +29,7 @@ public class AdminController {
     private final AdminService adminService;
 
     @GetMapping("/me")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'MANAGER')")
     @Operation(
             summary = "내 정보 조회",
             security = @SecurityRequirement(name = "bearer-key")

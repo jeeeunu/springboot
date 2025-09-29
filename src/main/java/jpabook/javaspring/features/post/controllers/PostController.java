@@ -102,6 +102,7 @@ public class PostController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     @Operation(
             summary = "게시글 수정",
             security = { @SecurityRequirement(name = "bearer-key") }
@@ -115,6 +116,7 @@ public class PostController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     @Operation(
             summary = "게시글 삭제",
             security = { @SecurityRequirement(name = "bearer-key") }
@@ -126,19 +128,21 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.success("게시글 삭제가 완료되었습니다."));
     }
 
-    @PostMapping("/{id}/like")
-    @Operation(
-            summary = "게시글 좋아요",
-            security = { @SecurityRequirement(name = "bearer-key") }
-    )
-    public ResponseEntity<ApiResponse<Void>> likePost(
-            @PathVariable Long id,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        postService.likePost(id, userDetails.getId());
-        return ResponseEntity.ok(ApiResponse.success("게시글 좋아요가 완료되었습니다."));
-    }
+//    @PostMapping("/{id}/like")
+//    @PreAuthorize("isAuthenticated()")
+//    @Operation(
+//            summary = "게시글 좋아요",
+//            security = { @SecurityRequirement(name = "bearer-key") }
+//    )
+//    public ResponseEntity<ApiResponse<Void>> likePost(
+//            @PathVariable Long id,
+//            @AuthenticationPrincipal CustomUserDetails userDetails) {
+//        postService.likePost(id, userDetails.getId());
+//        return ResponseEntity.ok(ApiResponse.success("게시글 좋아요가 완료되었습니다."));
+//    }
 
     @DeleteMapping("/{id}/like")
+    @PreAuthorize("isAuthenticated()")
     @Operation(
             summary = "게시글 좋아요 취소",
             security = { @SecurityRequirement(name = "bearer-key") }
@@ -151,6 +155,7 @@ public class PostController {
     }
 
     @GetMapping("/{id}/like")
+    @PreAuthorize("isAuthenticated()")
     @Operation(
             summary = "게시글 좋아요 여부 확인",
             security = { @SecurityRequirement(name = "bearer-key") }

@@ -21,15 +21,15 @@ public class AdminUserController {
 
     private final UserService userService;
 
-//    @GetMapping
-//    @PreAuthorize("hasRole('ADMIN')")
-//    @Operation(
-//            summary = "모든 사용자 조회",
-//            security = @SecurityRequirement(name = "bearer-key")
-//    )
-//    public ResponseEntity<ApiResponse<List<UserDto>>> getAllUsers() {
-//        List<UserDto> users = userService.findAll();
-//        return ResponseEntity.ok(ApiResponse.success("사용자 목록 조회가 완료되었습니다.", users));
-//    }
+    @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'MANAGER')")
+    @Operation(
+            summary = "모든 사용자 조회",
+            security = @SecurityRequirement(name = "bearer-key")
+    )
+    public ResponseEntity<ApiResponse<List<UserDto>>> getAllUsers() {
+        List<UserDto> users = userService.findAll();
+        return ResponseEntity.ok(ApiResponse.success("사용자 목록 조회가 완료되었습니다.", users));
+    }
 
 }

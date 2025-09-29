@@ -27,13 +27,6 @@ public class ApiResponse<T> {
         return success(message, null);
     }
 
-    public static <T> ApiResponse<T> error(String message) {
-        return ApiResponse.<T>builder()
-                .statusCode(400)
-                .message(message)
-                .build();
-    }
-
     public static <T> ApiResponse<T> error(int statusCode, String message) {
         return ApiResponse.<T>builder()
                 .statusCode(statusCode)

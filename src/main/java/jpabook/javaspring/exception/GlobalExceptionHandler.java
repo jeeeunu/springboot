@@ -45,11 +45,13 @@ public class GlobalExceptionHandler {
 
     private static final String REQUEST_ID_KEY = "requestId"; // 필터에서 MDC에 넣은 키와 동일해야 합니다.
 
-    // 공통 에러 응답 헬퍼 (클라이언트에 과한 정보를 주지 않기)
+    // 공통 에러 응답 헬퍼
     private ResponseEntity<ApiResponse<Void>> error(HttpStatus status, String message, String requestId) {
         String id = StringUtils.hasText(requestId) ? requestId : UUID.randomUUID().toString(); // 안전한 폴백
         String clientMsg = message + " (requestId=" + id + ")";
-        return ResponseEntity.status(status).body(ApiResponse.error(clientMsg));
+
+        return ResponseEntity.status(status)
+                .body(ApiResponse.error(status.value(), clientMsg));
     }
 
     private String reqId() {
@@ -89,6 +91,7 @@ public class GlobalExceptionHandler {
         log.warn("[400] {} {} reqId={} -> {}", req.getMethod(), req.getRequestURI(), reqId(), e.getMessage());
         return error(HttpStatus.BAD_REQUEST, "요청 형식이 올바르지 않습니다.", reqId());
     }
+
 
     /** 403 - 인증됨 but 권한 없음 */
     @ExceptionHandler(AccessDeniedException.class)

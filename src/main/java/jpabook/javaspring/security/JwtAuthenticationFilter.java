@@ -40,9 +40,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
                 Claims claims = tokenProvider.parseClaims(jwt);
-                String type = claims.get("roles", String.class);
+                String type = claims.get("type", String.class);
 //                String type = tokenProvider.getTypeFromToken(jwt);
-                log.info("jwtjwtjwt"+ tokenProvider.parseClaims(jwt));
+//                log.info("jwtjwtjwt"+ tokenProvider.parseClaims(jwt));
+                log.info("jwt Type" + type);
 
                 UserDetails userDetails;
                 if ("ADMIN".equals(type)) {

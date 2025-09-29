@@ -40,7 +40,7 @@ public class JwtTokenProvider {
                 .setSubject(String.valueOf(admin.getId()))
                 .claim("type", "ADMIN")
                 .claim("loginId", admin.getLoginId())             // 관리자 loginId
-                .claim("roles", admin.getRole())
+                .claim("role", admin.getRole())
                 .setIssuedAt(new Date())
                 .setExpiration(Date.from(Instant.now().plus(Duration.ofMillis(jwtExpirationMs))))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)

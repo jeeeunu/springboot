@@ -22,7 +22,7 @@ public class AdminService {
         return admin;
     }
 
-    public AdminSummaryResponseDto findByloginId(String loginId) {
+    public AdminSummaryResponseDto findByLoginId(String loginId) {
         Admin admin = Admin.builder()
                 .loginId(loginId)
                 .build();

@@ -20,10 +20,23 @@ public class CustomAdminDetails implements UserDetails {
         return List.of(new SimpleGrantedAuthority("ROLE_" + admin.getRole().name()));
     }
 
+    public Long getId() {
+        return admin.getId();
+    }
+
+    public String getLoginId() {
+        return admin.getLoginId();
+    }
+
+    public AdminRole getRole() {
+        return admin.getRole();
+    }
+
     @Override
     public String getPassword() {
         return admin.getPassword();
     }
+
 
     @Override
     public String getUsername() {

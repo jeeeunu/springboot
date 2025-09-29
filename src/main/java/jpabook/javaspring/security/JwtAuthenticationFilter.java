@@ -1,11 +1,14 @@
 package jpabook.javaspring.security;
 
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jpabook.javaspring.features.admin.services.CustomAdminDetailsService;
 import jpabook.javaspring.features.user.services.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,12 +22,14 @@ import java.io.IOException;
 /* JWT
 * 요청 → JWT 검사 → 인증객체 생성 → SecurityContext 저장
  * */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider tokenProvider;
     private final CustomUserDetailsService customUserDetailsService;
+    private final CustomAdminDetailsService customAdminDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -34,17 +39,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String jwt = getJwtFromRequest(request);
 
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-                // 토큰에서 userId 추출
-                Long userId = tokenProvider.getUserIdFromToken(jwt);
+                Claims claims = tokenProvider.parseClaims(jwt);
+                String type = claims.get("roles", String.class);
+//                String type = tokenProvider.getTypeFromToken(jwt);
+                log.info("jwtjwtjwt"+ tokenProvider.parseClaims(jwt));
 
-                // userId로 사용자 로드
-                UserDetails userDetails = customUserDetailsService.loadUserById(userId);
+                UserDetails userDetails;
+                if ("ADMIN".equals(type)) {
+                    String loginId = tokenProvider.getLoginIdFromToken(jwt);
+                    userDetails = customAdminDetailsService.loadUserByUsername(loginId);
+                } else {
+                    String email = tokenProvider.getEmailFromToken(jwt);
+                    userDetails = customUserDetailsService.loadUserByUsername(email);
+                }
 
-                // 인증 객체 생성 및 컨텍스트 저장
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails, null, userDetails.getAuthorities());
-
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }

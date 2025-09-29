@@ -1,16 +1,14 @@
 package jpabook.javaspring.security;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import jpabook.javaspring.features.admin.domains.Admin;
+import jpabook.javaspring.features.admin.domains.CustomAdminDetails;
 import jpabook.javaspring.features.user.domains.CustomUserDetails;
+import jpabook.javaspring.features.user.domains.User;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -20,8 +18,8 @@ import java.time.Instant;
 import java.util.Date;
 
 /* JWT
- * 생성,파싱,검증
- * */
+ * 생성, 파싱, 검증
+ */
 @Component
 public class JwtTokenProvider {
 
@@ -35,48 +33,81 @@ public class JwtTokenProvider {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(Authentication authentication) {
-        Object principal = authentication.getPrincipal();
+    /** ================== 토큰 생성 ================== */
 
-        CustomUserDetails cud = (CustomUserDetails) principal;
-
-        Long userId   = cud.getId();
-        String email  = cud.getUsername();
-
+    public String generateTokenForAdmin(CustomAdminDetails admin) {
         return Jwts.builder()
-                .setSubject(String.valueOf(userId))
-                .claim("email", email)
+                .setSubject(String.valueOf(admin.getId()))
+                .claim("type", "ADMIN")
+                .claim("loginId", admin.getLoginId())             // 관리자 loginId
+                .claim("roles", admin.getRole())
                 .setIssuedAt(new Date())
-                .setExpiration(Date.from(Instant.now().plus(Duration.ofHours(2))))
-                .signWith(SignatureAlgorithm.HS256, this.getSigningKey())
+                .setExpiration(Date.from(Instant.now().plus(Duration.ofMillis(jwtExpirationMs))))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String getUsernameFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-
-        return claims.getSubject();
+    public String generateTokenForUser(CustomUserDetails user) {
+        return Jwts.builder()
+                .setSubject(String.valueOf(user.getId()))         // PK (Long id)
+                .claim("type", "USER")                            // 구분자
+                .claim("email", user.getEmail())                  // 사용자 email
+                .setIssuedAt(new Date())
+                .setExpiration(Date.from(Instant.now().plus(Duration.ofMillis(jwtExpirationMs))))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
+    /** ================== Claims 파싱 ================== */
+
+    public Claims parseClaims(String token) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (ExpiredJwtException e) {
+            // 만료된 토큰도 클레임 꺼낼 수 있도록 처리
+            return e.getClaims();
+        }
+    }
+
+    /** ================== Claims 조회 헬퍼 ================== */
+
+    // PK (공통 id)
     public Long getUserIdFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-        return Long.valueOf(claims.getSubject());
+        return Long.valueOf(parseClaims(token).getSubject());
     }
+
+    // 사용자 타입: ADMIN / USER
+    public String getTypeFromToken(String token) {
+        return parseClaims(token).get("type", String.class);
+    }
+
+    // 사용자 email (USER 전용)
+    public String getEmailFromToken(String token) {
+        return parseClaims(token).get("email", String.class);
+    }
+
+    // 관리자 loginId (ADMIN 전용)
+    public String getLoginIdFromToken(String token) {
+        return parseClaims(token).get("loginId", String.class);
+    }
+
+    // roles
+    public String getRolesFromToken(String token) {
+        return parseClaims(token).get("roles", String.class);
+    }
+
+    /** ================== 토큰 유효성 검증 ================== */
 
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token);
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token);
             return true;
         } catch (SignatureException ex) {
             System.out.println("유효하지 않은 JWT 서명");

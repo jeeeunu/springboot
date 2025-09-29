@@ -26,17 +26,17 @@ public class UserController {
     private final UserService userService;
     private final AuthService authService;
 
-//    @GetMapping("/me")
-//    @PreAuthorize("isAuthenticated()")
-//    @Operation(
-//            summary = "내 정보 조회",
-//            security = @SecurityRequirement(name = "bearer-key")
-//    )
-//    public ResponseEntity<ApiResponse<UserDto>> getCurrentUser(
-//            @AuthenticationPrincipal CustomUserDetails userDetails) {
-//        UserDto userDto = userService.findByUserId(userDetails.getId());
-//        return ResponseEntity.ok(ApiResponse.success("현재 사용자 정보 조회가 완료되었습니다.", userDto));
-//    }
+    @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(
+            summary = "내 정보 조회",
+            security = @SecurityRequirement(name = "bearer-key")
+    )
+    public ResponseEntity<ApiResponse<UserDto>> getCurrentUser(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        UserDto userDto = userService.findByUserId(userDetails.getId());
+        return ResponseEntity.ok(ApiResponse.success("현재 사용자 정보 조회가 완료되었습니다.", userDto));
+    }
 
     @PostMapping()
     @Operation(

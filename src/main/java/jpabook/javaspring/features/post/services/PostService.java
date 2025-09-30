@@ -145,11 +145,11 @@ public class PostService {
     }
 
     @Transactional
-    public void delete(Long id, String username) {
+    public void delete(Long id, Long userId) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다: " + id));
 
-        if (!post.getAuthor().getUsername().equals(username)) {
+        if (!post.getAuthor().getId().equals(userId)) {
             throw new AccessDeniedException("이 게시물을 삭제할 권한이 없습니다");
         }
 

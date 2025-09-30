@@ -124,22 +124,22 @@ public class PostController {
     public ResponseEntity<ApiResponse<Void>> deletePost(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        postService.delete(id, userDetails.getUsername());
+        postService.delete(id, userDetails.getId());
         return ResponseEntity.ok(ApiResponse.success("게시글 삭제가 완료되었습니다."));
     }
 
-//    @PostMapping("/{id}/like")
-//    @PreAuthorize("isAuthenticated()")
-//    @Operation(
-//            summary = "게시글 좋아요",
-//            security = { @SecurityRequirement(name = "bearer-key") }
-//    )
-//    public ResponseEntity<ApiResponse<Void>> likePost(
-//            @PathVariable Long id,
-//            @AuthenticationPrincipal CustomUserDetails userDetails) {
-//        postService.likePost(id, userDetails.getId());
-//        return ResponseEntity.ok(ApiResponse.success("게시글 좋아요가 완료되었습니다."));
-//    }
+    @PostMapping("/{id}/like")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(
+            summary = "게시글 좋아요",
+            security = { @SecurityRequirement(name = "bearer-key") }
+    )
+    public ResponseEntity<ApiResponse<Void>> likePost(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        postService.likePost(id, userDetails.getId());
+        return ResponseEntity.ok(ApiResponse.success("게시글 좋아요가 완료되었습니다."));
+    }
 
     @DeleteMapping("/{id}/like")
     @PreAuthorize("isAuthenticated()")

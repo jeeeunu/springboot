@@ -38,6 +38,7 @@ docker save $IMAGE_NAME -o $TAR_NAME
 # ===== 4. 서버로 전송 =====
 echo "tar 파일 서버 업로드"
 scp $TAR_NAME $REMOTE_USER@$REMOTE_IP:$REMOTE_DIR/
+scp .env.deploy $REMOTE_USER@$REMOTE_IP:$REMOTE_DIR/$CONTAINER_NAME.env
 
 # ===== 5. 로컬 정리 =====
 echo "로컬 tar 및 이미지 삭제"
@@ -61,7 +62,7 @@ ssh $REMOTE_USER@$REMOTE_IP << EOF
     --name $CONTAINER_NAME \
     --network router \
     -p $REMOTE_PORT:$LOCAL_PORT \
-    --env-file /home/docker-manager/project_envs/$CONTAINER_NAME.env \
+    -v $REMOTE_DIR/$CONTAINER_NAME.env:/app/.env:ro \
     $IMAGE_NAME
 EOF
 

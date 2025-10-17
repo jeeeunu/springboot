@@ -36,7 +36,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         try {
-            // 요청 헤더에서 JWT 토큰 추출
             String jwt = getJwtFromRequest(request);
 
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
@@ -66,11 +65,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             logger.error("보안 컨텍스트에서 사용자 인증을 설정할 수 없습니다", ex);
         }
 
-        // 다음 필터로 요청 전달
         filterChain.doFilter(request, response);
     }
 
-    // Authorization 헤더에서 "Bearer {토큰}" 형식의 토큰을 추출
     private String getJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {

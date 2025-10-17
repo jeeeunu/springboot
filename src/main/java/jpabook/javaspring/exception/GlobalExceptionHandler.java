@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jpabook.javaspring.common.dto.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC; // ⬅️ 추가
+import org.slf4j.MDC;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    private static final String REQUEST_ID_KEY = "requestId"; // 필터에서 MDC에 넣은 키와 동일해야 함
+    private static final String REQUEST_ID_KEY = "requestId";
 
     private ResponseEntity<ApiResponse<Void>> error(HttpStatus status, String message, String requestId) {
         String id = StringUtils.hasText(requestId) ? requestId : UUID.randomUUID().toString();

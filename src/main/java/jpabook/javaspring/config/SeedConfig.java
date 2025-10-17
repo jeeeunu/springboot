@@ -20,7 +20,6 @@ public class SeedConfig {
     @Bean
     CommandLineRunner seedSuperAdmin() {
         return args -> {
-            // 기본 superadmin 계정 생성
             if (!adminRepository.existsByLoginId("superadmin")) {
                 adminRepository.save(Admin.builder()
                         .loginId("superadmin")
@@ -31,7 +30,6 @@ public class SeedConfig {
                 System.out.println("✅ SuperAdmin 계정이 생성되었습니다 (loginId=superadmin).");
             }
 
-            // --- 경고 로직 추가 ---
             Optional<Admin> superAdminOpt = adminRepository.findByLoginId("superadmin");
             if (superAdminOpt.isPresent()) {
                 Admin superAdmin = superAdminOpt.get();

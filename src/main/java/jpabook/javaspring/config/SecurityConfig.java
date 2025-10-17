@@ -9,7 +9,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-// ✅ 메서드 보안 비활성화를 위해 주석 처리
 // import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -25,12 +24,11 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-// ✅ 전부 허용할 목적이면 메서드 보안 꺼두세요
 // @EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    // private final JwtAuthenticationFilter jwtAuthenticationFilter; // ✅ 임시 비활성화
+    // private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
 
@@ -50,7 +48,6 @@ public class SecurityConfig {
                         // 스웨거/문서/정적 리소스
                         .requestMatchers("/", "/index.html", "/favicon.ico", "/static/**",
                                 "/swagger-ui/**", "/v3/api-docs/**", "/actuator/**").permitAll()
-                        // ✅ 모든 요청 허용
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -60,7 +57,6 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler)
                 );
 
-        // ✅ 전부 허용 모드에서는 JWT 필터를 아예 빼세요.
         // .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

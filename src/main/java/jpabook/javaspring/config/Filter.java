@@ -29,7 +29,7 @@ public class Filter implements jakarta.servlet.Filter {
         try {
             chain.doFilter(request, response);
         } finally {
-            MDC.clear(); // 메모리 누수 방지
+            MDC.clear();
         }
     }
 }

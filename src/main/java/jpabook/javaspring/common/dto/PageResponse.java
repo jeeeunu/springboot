@@ -22,7 +22,7 @@ public class PageResponse<T> {
     public static <T> PageResponse<T> from(Page<T> page) {
         return PageResponse.<T>builder()
                 .data(page.getContent())
-                .page(page.getNumber() + 1) // Convert from 0-based to 1-based
+                .page(page.getNumber() + 1)
                 .size(page.getSize())
                 .totalPages(page.getTotalPages())
                 .totalElements(page.getTotalElements())

@@ -39,7 +39,7 @@ public class JwtTokenProvider {
         return Jwts.builder()
                 .setSubject(String.valueOf(admin.getId()))
                 .claim("type", "ADMIN")
-                .claim("loginId", admin.getLoginId())             // 관리자 loginId
+                .claim("loginId", admin.getLoginId())
                 .claim("role", admin.getRole())
                 .setIssuedAt(new Date())
                 .setExpiration(Date.from(Instant.now().plus(Duration.ofMillis(jwtExpirationMs))))
@@ -49,9 +49,9 @@ public class JwtTokenProvider {
 
     public String generateTokenForUser(CustomUserDetails user) {
         return Jwts.builder()
-                .setSubject(String.valueOf(user.getId()))         // PK (Long id)
-                .claim("type", "USER")                            // 구분자
-                .claim("email", user.getEmail())                  // 사용자 email
+                .setSubject(String.valueOf(user.getId()))
+                .claim("type", "USER")
+                .claim("email", user.getEmail())
                 .setIssuedAt(new Date())
                 .setExpiration(Date.from(Instant.now().plus(Duration.ofMillis(jwtExpirationMs))))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -68,34 +68,28 @@ public class JwtTokenProvider {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (ExpiredJwtException e) {
-            // 만료된 토큰도 클레임 꺼낼 수 있도록 처리
             return e.getClaims();
         }
     }
 
     /** ================== Claims 조회 헬퍼 ================== */
 
-    // PK (공통 id)
     public Long getUserIdFromToken(String token) {
         return Long.valueOf(parseClaims(token).getSubject());
     }
 
-    // 사용자 타입: ADMIN / USER
     public String getTypeFromToken(String token) {
         return parseClaims(token).get("type", String.class);
     }
 
-    // 사용자 email (USER 전용)
     public String getEmailFromToken(String token) {
         return parseClaims(token).get("email", String.class);
     }
 
-    // 관리자 loginId (ADMIN 전용)
     public String getLoginIdFromToken(String token) {
         return parseClaims(token).get("loginId", String.class);
     }
 
-    // roles
     public String getRolesFromToken(String token) {
         return parseClaims(token).get("roles", String.class);
     }
